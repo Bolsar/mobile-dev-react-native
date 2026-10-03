@@ -1,0 +1,17 @@
+{
+  "name": "mobile-dev-react-native",
+  "version": "0.1.0",
+  "description": "React Native Stack Pack for the mobile-dev agent: greenfield defaults, idioms, tooling and a verify script. Requires mobile-dev.",
+  "author": {
+    "name": "Bolsar"
+  },
+  "repository": "https://github.com/Bolsar/mobile-dev-react-native",
+  "license": "MIT",
+  "keywords": [
+    "mobile",
+    "react-native"
+  ],
+  "skills": [
+    "./skills/"
+  ]
+}

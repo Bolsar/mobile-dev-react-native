@@ -1,0 +1,66 @@
+#!/bin/sh
+# verify — lint, test and capture proof for a React Native project.
+#
+# Usage: verify [--flow <maestro.yaml>] [project_dir]
+#
+# Writes proof to <project_dir>/.mobile-agent-proof/<timestamp>/:
+#   summary.txt, one <step>.log per step, screenshot.png and device.log
+#   when a device is running.
+# Exit code is 0 only when every step passed.
+
+set -u
+
+FLOW=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --flow) FLOW="$2"; shift ;;
+    -h|--help) sed -n '2,9p' "$0"; exit 0 ;;
+    *) break ;;
+  esac
+  shift
+done
+DIR="${1:-.}"
+cd "$DIR" || exit 2
+
+OUT=".mobile-agent-proof/$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$OUT"
+FAILED=0
+echo "stack: react-native" > "$OUT/summary.txt"
+
+# step <name> <command...>: run, log, record PASS/FAIL.
+step() {
+  name="$1"; shift
+  echo "== $name: $*"
+  if "$@" > "$OUT/$name.log" 2>&1; then r=PASS; else r=FAIL; FAILED=1; fi
+  echo "$r  $name  ($*)" | tee -a "$OUT/summary.txt"
+}
+
+step typecheck npx tsc --noEmit
+step lint npx eslint .
+step test npx jest --ci
+
+if [ -n "$FLOW" ]; then
+  if command -v maestro >/dev/null; then
+    step flow maestro test "$FLOW" --test-output-dir "$OUT/maestro"
+  else
+    echo "FAIL  flow  (maestro not installed: https://docs.maestro.dev)" | tee -a "$OUT/summary.txt"; FAILED=1
+  fi
+fi
+
+# Screenshot and recent logs from whatever device is running. Missing device is not a failure.
+if xcrun simctl list devices booted 2>/dev/null | grep -q Booted; then
+  xcrun simctl io booted screenshot "$OUT/screenshot.png" >/dev/null 2>&1
+  xcrun simctl spawn booted log show --last 5m --style compact > "$OUT/device.log" 2>&1
+  echo "captured: iOS simulator screenshot + log" >> "$OUT/summary.txt"
+elif command -v adb >/dev/null && [ "$(adb get-state 2>/dev/null)" = device ]; then
+  adb exec-out screencap -p > "$OUT/screenshot.png" 2>/dev/null
+  adb logcat -d -t 2000 > "$OUT/device.log" 2>&1
+  echo "captured: Android screenshot + logcat" >> "$OUT/summary.txt"
+else
+  echo "captured: nothing (no booted simulator or emulator)" >> "$OUT/summary.txt"
+fi
+
+echo "proof: $(pwd)/$OUT"
+if [ "$FAILED" = 0 ]; then r=PASS; else r=FAIL; fi
+echo "RESULT $r" | tee -a "$OUT/summary.txt"
+exit "$FAILED"
