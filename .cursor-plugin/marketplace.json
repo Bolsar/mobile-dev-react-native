@@ -1,0 +1,13 @@
+{
+  "name": "bolsar-react-native",
+  "owner": {
+    "name": "Bolsar"
+  },
+  "plugins": [
+    {
+      "name": "mobile-dev-react-native",
+      "source": "./",
+      "description": "React Native Stack Pack for the mobile-dev agent: greenfield defaults, idioms, tooling and a verify script. Requires mobile-dev."
+    }
+  ]
+}

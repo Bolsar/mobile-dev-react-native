@@ -11,7 +11,5 @@
     "mobile",
     "react-native"
   ],
-  "skills": [
-    "./skills/"
-  ]
+  "skills": "./skills/"
 }
