@@ -33,7 +33,7 @@ gemini extensions install https://github.com/Bolsar/mobileDev
 gemini extensions install https://github.com/Bolsar/mobile-dev-react-native
 ```
 
-**Cursor** (teams): an admin imports `https://github.com/Bolsar/mobileDev` and `https://github.com/Bolsar/mobile-dev-react-native` under Dashboard → Settings → Plugins → Import. Solo: use the copy install below.
+**Cursor** (teams): an admin imports `https://github.com/Bolsar/mobileDev` and `https://github.com/Bolsar/mobile-dev-react-native` under Dashboard → Plugins & MCPs → Team Marketplaces → Add Marketplace → Import from Repo. Solo: use the copy install below.
 
 **Other tools** (Antigravity, Copilot coding agent, ...): copy mobile-dev into your app as `.mobile-agent/` (see its README), then add this pack inside it:
 ```sh
